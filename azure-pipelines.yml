@@ -1,13 +1,14 @@
-name: angular-app-build-$(Date:yyyyMMdd)$(Rev:.r)
+name: AngularApp$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
 - main
 pool:
-  vmImage: 'ubuntu-latest'
+  name: Default
 
 variables:
-  buildConfiguration: 'production'
+  buildConfiguration: 'Release'
 
 steps:
+
 - task: NodeTool@0
   inputs:
     versionSpec: '14.x'
