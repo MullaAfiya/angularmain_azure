@@ -1,6 +1,6 @@
 name: AngularApp$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
-- main
+  - main
 pool:
   name: Default
 
@@ -8,37 +8,24 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x' # Adjust Node.js version as needed
+    displayName: 'Install Node.js'
 
-- task: UseNode@1
-  inputs:
-    version: '18.14.0'
-  displayName: 'Install Node.js'
+  - script: |
+      npm install @angular/cli
+    displayName: 'Install Angular CLI'
 
-- task: Cache@2
-  inputs:
-    key: 'npm | "$(Agent.OS)" | package-lock.json'
-    restoreKeys: |
-      npm | "$(Agent.OS)"
-    path: $(Pipeline.Workspace)/.npm
-  displayName: 'Cache npm'
+  - script: |
+      npm install
+    displayName: 'Install Dependencies'
 
-- task: Npm@1
-  displayName: 'Install Angular CLI and Dependencies'
-  inputs:
-    command: custom
-    verbose: false
-    customCommand: 'install -g @angular/cli@13.2.5 && npm install file:custom-angular-lib.tgz --legacy-peer-deps'
+  - script: |
+      ng build --configuration=$(buildConfiguration)
+    displayName: 'Build Angular App'
 
-- task: AngularCLI@0
-  displayName: 'Build Angular App'
-  inputs:
-    command: 'build'
-    configuration: $(buildConfiguration)
-    outputPath: '$(System.DefaultWorkingDirectory)/dist'
-    baseHref: '/'
-
-- task: PublishPipelineArtifact@1
-  inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)/dist'
-    artifactName: 'angular-app'
-   
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(System.DefaultWorkingDirectory)/dist'
+      artifactName: 'angular-app'
